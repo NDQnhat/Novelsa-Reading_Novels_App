@@ -24,7 +24,7 @@ export default function App() {
 
   // === TAB CHANGE ===
   const handleTabChange = (tab: string) => {
-    if ((tab === TABS.LIBRARY || tab === TABS.WRITE || tab === TABS.ADMIN) && !currentUser) {
+    if ((tab === TABS.LIBRARY || tab === TABS.WRITE || tab === TABS.ADMIN || tab === TABS.PROFILE) && !currentUser) {
       setShowAuthModal(true);
       message.info('Bạn cần đăng nhập để truy cập tính năng này.');
       return;
@@ -49,7 +49,7 @@ export default function App() {
   const handleReadChapter = async (novelId: string, chapterId: string) => {
     setViewNovelId(novelId);
     setReadChapterId(chapterId);
-
+    
     const novel = novels.find((n) => n.id === novelId);
     if (novel && currentUser) {
       const chapterIndex = novel.chapters.findIndex((c) => c.id === chapterId);
@@ -126,7 +126,7 @@ export default function App() {
         description: novelData.description || '',
         authorId: currentUser.id,
         authorName: currentUser.name,
-        coverUrl: novelData.coverUrl || 'https://picsum.photos/200/300?random=1',
+        coverUrl: novelData.coverUrl || 'https://images.unsplash.com/photo-1507842217343-583f20270319?w=300&h=450&fit=crop',
         tags: novelData.tags || ['Truyện'],
         chapters: [],
         status: NovelStatus.DRAFT,
@@ -230,25 +230,26 @@ export default function App() {
   };
 
   // === DERIVED DATA ===
-  console.log(novels);
+  // Ensure novels is always an array (safety check for API response format)
+  const novelsArray = Array.isArray(novels) ? novels : [];
 
-  const novel = (novels).find((n) => n.id === viewNovelId);
+  const novel = novelsArray.find((n) => n.id === viewNovelId);
   const chapter =
     novel && readChapterId ? novel.chapters.find((c) => c.id === readChapterId) : null;
   const chapterIndex = novel && chapter ? novel.chapters.indexOf(chapter) : -1;
 
-  const editingNovel = novels.find((n) => n.id === editingNovelId);
-  const visibleNovels = getFilteredNovels(novels);
+  const editingNovel = novelsArray.find((n) => n.id === editingNovelId);
+  const visibleNovels = getFilteredNovels(novelsArray);
 
   const libraryNovels = currentUser
-    ? novels.filter((n) => currentUser.library.includes(n.id))
+    ? novelsArray.filter((n) => currentUser.library.includes(n.id))
     : [];
 
   const myNovels = currentUser
-    ? novels.filter((n) => n.authorId === currentUser.id)
+    ? novelsArray.filter((n) => n.authorId === currentUser.id)
     : [];
 
-  const pendingNovels = novels.filter((n) => n.status === NovelStatus.PENDING);
+  const pendingNovels = novelsArray.filter((n) => n.status === NovelStatus.PENDING);
 
   // === LOADING STATE ===
   if (loading) {

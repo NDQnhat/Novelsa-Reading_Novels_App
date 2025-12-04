@@ -5,7 +5,7 @@ export const MOCK_USER: User = {
   email: 'user@example.com',
   password: 'password',
   name: 'Người Dùng Mẫu',
-  avatarUrl: 'https://picsum.photos/100/100?random=99',
+  avatarUrl: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop',
   role: UserRole.USER,
   library: ['novel-1'],
   downloadedChapters: []
@@ -18,7 +18,7 @@ export const MOCK_NOVELS: Novel[] = [
     authorName: 'Lão Trư',
     title: 'Huyền Thoại Bắt Đầu',
     description: 'Một câu chuyện giả tưởng về hành trình trở thành huyền thoại của một thiếu niên bình thường trong thế giới tu tiên đầy khắc nghiệt. Hắn mang theo tri thức hiện đại xuyên không về cổ đại, từng bước xây dựng thế lực...',
-    coverUrl: 'https://picsum.photos/300/450?random=101',
+    coverUrl: 'https://images.unsplash.com/photo-1507842217343-583f20270319?w=300&h=450&fit=crop',
     status: NovelStatus.APPROVED,
     tags: ['Tiên Hiệp', 'Huyền Huyễn'],
     createdAt: Date.now(),
@@ -54,7 +54,7 @@ export const MOCK_NOVELS: Novel[] = [
     authorName: 'Mộng Mơ',
     title: 'Chuyện Tình Mùa Hạ',
     description: 'Câu chuyện tình yêu nhẹ nhàng chốn học đường giữa những cơn mưa rào mùa hạ.',
-    coverUrl: 'https://picsum.photos/300/450?random=102',
+    coverUrl: 'https://images.unsplash.com/photo-1517040997480-5a6b0dfc8adc?w=300&h=450&fit=crop',
     status: NovelStatus.APPROVED,
     tags: ['Ngôn Tình', 'Học Đường'],
     createdAt: Date.now(),
@@ -67,14 +67,14 @@ export const MOCK_NOVELS: Novel[] = [
 export const mockService = {
   // Helper to generate avatars for UI
   getRandomAvatars: () => [
-    'https://picsum.photos/100/100?random=10',
-    'https://picsum.photos/100/100?random=11',
-    'https://picsum.photos/100/100?random=12',
-    'https://picsum.photos/100/100?random=13',
-    'https://picsum.photos/100/100?random=14',
-    'https://picsum.photos/100/100?random=15',
-    'https://picsum.photos/100/100?random=16',
-    'https://picsum.photos/100/100?random=17',
+    'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop',
+    'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop',
+    'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop',
+    'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&h=100&fit=crop',
+    'https://images.unsplash.com/photo-1502685176493-4ee32cb4c31e?w=100&h=100&fit=crop',
+    'https://images.unsplash.com/photo-1519046904884-53103b34b206?w=100&h=100&fit=crop',
+    'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=100&h=100&fit=crop',
+    'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop',
   ],
 
   calculateTotalReads: (novel: Novel): number => {

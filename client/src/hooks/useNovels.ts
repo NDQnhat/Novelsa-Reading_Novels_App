@@ -11,10 +11,13 @@ export function useNovels() {
     const loadNovels = async () => {
       try {
         const fetchedNovels = await api.getNovels();
-        setNovels(fetchedNovels);
+        // Ensure we always have an array
+        const novelArray = Array.isArray(fetchedNovels) ? fetchedNovels : [];
+        setNovels(novelArray);
       } catch (error) {
         console.error('Failed to load novels', error);
         message.error('Không thể tải dữ liệu truyện');
+        setNovels([]); // Set empty array on error
       } finally {
         setLoading(false);
       }

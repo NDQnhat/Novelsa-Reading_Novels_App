@@ -15,13 +15,21 @@ const apiClient = axios.create({
 
 // Helper: Execute Axios request, if fails (timeout/network error), return fallback
 async function withFallback<T>(
-  apiCall: () => Promise<AxiosResponse<T>>,
+  apiCall: () => Promise<AxiosResponse<any>>,
   fallbackValue: T | (() => T),
   errorMessage: string = "Service unavailable"
 ): Promise<T> {
   try {
     const response = await apiCall();
-    return response.data;
+    const data = response.data;
+    
+    // Handle API response with { success, data, message } structure
+    if (data && typeof data === 'object' && 'success' in data && 'data' in data) {
+      return data.data as T;
+    }
+    
+    // Otherwise return response data directly
+    return data as T;
   } catch (error) {
     console.warn(`[API] ${errorMessage}. Switching to Mock Data.`, error);
     return typeof fallbackValue === "function"
@@ -58,11 +66,21 @@ export const api = {
 
   // Novels
   getNovels: async (): Promise<Novel[]> => {
-    return withFallback(
-      () => apiClient.get<Novel[]>("/novels"),
-      MOCK_NOVELS,
-      "Get Novels failed"
-    );
+    try {
+      const response = await apiClient.get("/novels");
+      const data = response.data;
+      
+      // Handle API response structure
+      if (data && typeof data === 'object' && 'success' in data && 'data' in data) {
+        return Array.isArray(data.data) ? data.data : MOCK_NOVELS;
+      }
+      
+      // Return as array if it's already an array
+      return Array.isArray(data) ? data : MOCK_NOVELS;
+    } catch (error) {
+      console.warn("[API] Get Novels failed. Switching to Mock Data.", error);
+      return MOCK_NOVELS;
+    }
   },
 
   createNovel: async (novel: Novel): Promise<Novel> => {
