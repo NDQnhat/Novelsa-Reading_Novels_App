@@ -1,14 +1,18 @@
 import React from 'react';
 import { Home, BookOpen, PenTool, User, ShieldAlert } from 'lucide-react';
+import { User as UserType } from '../types';
 
 interface LayoutProps {
   children: React.ReactNode;
   activeTab: string;
   onTabChange: (tab: string) => void;
-  isAdmin?: boolean;
+  currentUser?: UserType | null;
+  onShowAuth?: () => void;
 }
 
-export const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange, isAdmin }) => {
+export const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange, currentUser, onShowAuth }) => {
+  const isAdmin = currentUser?.role === 'ADMIN';
+
   return (
     <div className="flex flex-col h-screen max-w-md mx-auto bg-dark shadow-2xl relative overflow-hidden border-x border-slate-800">
       <main className="flex-1 overflow-y-auto no-scrollbar scroll-smooth">
@@ -33,24 +37,28 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange
           <span className="text-[10px] mt-1">Tủ sách</span>
         </button>
 
-        <button 
-          onClick={() => onTabChange('write')}
-          className={`flex flex-col items-center p-2 ${activeTab === 'write' ? 'text-primary' : 'text-slate-500'}`}
-        >
-          <div className="bg-primary/20 p-2 rounded-full -mt-6 border-4 border-dark">
-             <PenTool size={24} className={activeTab === 'write' ? 'text-primary' : 'text-slate-300'} />
-          </div>
-          <span className="text-[10px] mt-1">Sáng tác</span>
-        </button>
+        {!isAdmin && (
+          <button 
+            onClick={() => onTabChange('write')}
+            className={`flex flex-col items-center p-2 ${activeTab === 'write' ? 'text-primary' : 'text-slate-500'}`}
+          >
+            <div className="bg-primary/20 p-2 rounded-full -mt-6 border-4 border-dark">
+              <PenTool size={24} className={activeTab === 'write' ? 'text-primary' : 'text-slate-300'} />
+            </div>
+            <span className="text-[10px] mt-1">Sáng tác</span>
+          </button>
+        )}
 
         {isAdmin && (
-           <button 
-           onClick={() => onTabChange('admin')}
-           className={`flex flex-col items-center p-2 ${activeTab === 'admin' ? 'text-primary' : 'text-slate-500'}`}
-         >
-           <ShieldAlert size={24} />
-           <span className="text-[10px] mt-1">Admin</span>
-         </button>
+          <button 
+            onClick={() => onTabChange('admin')}
+            className={`flex flex-col items-center p-2 ${activeTab === 'admin' ? 'text-primary' : 'text-slate-500'}`}
+          >
+            <div className="bg-primary/20 p-2 rounded-full -mt-6 border-4 border-dark">
+              <ShieldAlert size={24} className={activeTab === 'admin' ? 'text-primary' : 'text-slate-300'} />
+            </div>
+            <span className="text-[10px] mt-1">Admin</span>
+          </button>
         )}
 
         <button 

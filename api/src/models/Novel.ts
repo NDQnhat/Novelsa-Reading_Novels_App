@@ -1,11 +1,7 @@
-import mongoose, { Schema, Document } from 'mongoose';
+import mongoose, { Schema } from 'mongoose';
 import { INovel, IChapter, IComment } from '../types/index';
 
-interface CommentDocument extends IComment, Document {}
-interface ChapterDocument extends IChapter, Document {}
-interface NovelDocument extends INovel, Document {}
-
-const CommentSchema = new Schema<CommentDocument>(
+const CommentSchema = new Schema<IComment>(
   {
     id: { type: String, required: true },
     userId: { type: String, required: true },
@@ -17,7 +13,7 @@ const CommentSchema = new Schema<CommentDocument>(
   { _id: false }
 );
 
-const ChapterSchema = new Schema<ChapterDocument>(
+const ChapterSchema = new Schema<IChapter>(
   {
     id: { type: String, required: true },
     novelId: { type: String, required: true },
@@ -32,7 +28,7 @@ const ChapterSchema = new Schema<ChapterDocument>(
   { _id: false }
 );
 
-const NovelSchema = new Schema<NovelDocument>(
+const NovelSchema = new Schema<INovel>(
   {
     id: { type: String, unique: true, required: true },
     authorId: { type: String, required: true },
@@ -51,6 +47,6 @@ const NovelSchema = new Schema<NovelDocument>(
   { timestamps: true }
 );
 
-const Novel = mongoose.model<NovelDocument>('Novel', NovelSchema);
+const Novel = mongoose.model<INovel>('Novel', NovelSchema);
 
 export default Novel;

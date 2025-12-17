@@ -127,7 +127,7 @@ export function NovelDetailOverlay({
           </h3>
           <div className="space-y-3">
             {novel.chapters.length === 0 && (
-              <p className="text-slate-500 italic">Chưa có chương nào.</p>
+              <p className="text-slate-400 italic">Chưa có chương nào.</p>
             )}
             {novel.chapters.slice(0, visibleChaptersCount).map((ch) => (
               <div
@@ -136,7 +136,7 @@ export function NovelDetailOverlay({
                 className="flex justify-between items-center p-3 bg-slate-800/50 rounded hover:bg-slate-800 cursor-pointer"
               >
                 <span className="text-sm font-medium">{ch.title}</span>
-                <span className="text-xs text-slate-500">
+                <span className="text-xs text-slate-400">
                   {new Date(ch.publishedAt).toLocaleDateString('vi-VN')}
                 </span>
               </div>
@@ -145,7 +145,7 @@ export function NovelDetailOverlay({
             {visibleChaptersCount < novel.chapters.length && (
               <button
                 onClick={() => setVisibleChaptersCount((prev) => prev + 50)}
-                className="w-full py-3 mt-4 bg-slate-800 text-slate-400 text-sm font-bold rounded-lg hover:bg-slate-700 hover:text-white transition-colors flex items-center justify-center gap-2"
+                className="w-full py-3 mt-4 bg-slate-800 text-white text-sm font-bold rounded-lg hover:bg-slate-700 transition-colors flex items-center justify-center gap-2"
               >
                 <span>Xem thêm chương</span>
                 <span className="bg-slate-900 px-2 py-0.5 rounded text-[10px]">

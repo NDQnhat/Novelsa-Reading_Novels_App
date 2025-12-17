@@ -38,7 +38,7 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({
           <UserIcon size={48} className="text-slate-600" />
         </div>
         <h2 className="text-2xl font-bold mb-2">Xin chào, Khách</h2>
-        <p className="text-slate-400 text-center mb-8 text-sm px-8">
+        <p className="text-slate-300 text-center mb-8 text-sm px-8">
           Đăng nhập để lưu truyện vào tủ sách, tải truyện offline và bắt đầu sáng tác tác
           phẩm của riêng bạn.
         </p>
@@ -65,7 +65,7 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({
               </div>
             </div>
             <h2 className="text-xl font-bold">{currentUser.name}</h2>
-            <p className="text-slate-400 text-sm">{currentUser.email}</p>
+            <p className="text-slate-300 text-sm">{currentUser.email}</p>
 
             <div className="flex gap-2 mt-4">
               <button
@@ -87,7 +87,7 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({
           <div className="bg-slate-800 rounded-xl p-4 space-y-4 mb-8">
             <div className="flex justify-between items-center border-b border-slate-700 pb-3">
               <span className="flex items-center gap-3">
-                <Book size={18} className="text-slate-400" /> Truyện đã đăng
+                <Book size={18} className="text-slate-300" /> Truyện đã đăng
               </span>
               <span className="font-bold">
                 {myNovels.filter((n) => n.status === NovelStatus.APPROVED).length}
@@ -95,13 +95,13 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({
             </div>
             <div className="flex justify-between items-center border-b border-slate-700 pb-3">
               <span className="flex items-center gap-3">
-                <Heart size={18} className="text-slate-400" /> Truyện yêu thích
+                <Heart size={18} className="text-slate-300" /> Truyện yêu thích
               </span>
               <span className="font-bold">{currentUser.library.length}</span>
             </div>
             <div className="flex justify-between items-center">
               <span className="flex items-center gap-3">
-                <Settings size={18} className="text-slate-400" /> Cài đặt
+                <Settings size={18} className="text-slate-300" /> Cài đặt
               </span>
               <span className="text-slate-500 text-xs">v1.1.0</span>
             </div>
@@ -115,7 +115,7 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({
             <h3 className="text-amber-400 font-bold text-sm mb-2 flex items-center gap-2">
               <Download size={16} /> Tải xuống App
             </h3>
-            <p className="text-xs text-slate-400">
+            <p className="text-xs text-slate-300">
               Đây là phiên bản Web. Để có trải nghiệm tốt nhất, hãy nhấn vào đây để xem
               hướng dẫn cài đặt ứng dụng về máy.
             </p>

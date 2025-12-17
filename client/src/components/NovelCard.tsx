@@ -1,7 +1,7 @@
 import React from 'react';
 import { Novel } from '../types';
 import { Eye, Book, UserIcon } from 'lucide-react';
-import { mockService } from '../services/mockService';
+import { utils } from '../services/services';
 
 interface NovelCardProps {
   novel: Novel;
@@ -9,7 +9,7 @@ interface NovelCardProps {
 }
 
 export const NovelCard: React.FC<NovelCardProps> = ({ novel, onClick }) => {
-  const totalReads = mockService.calculateTotalReads(novel);
+  const totalReads = utils.calculateTotalReads(novel);
 
   return (
     <div onClick={onClick} className="flex gap-3 mb-4 p-2 active:bg-slate-800 rounded-lg transition-colors cursor-pointer">
@@ -29,7 +29,7 @@ export const NovelCard: React.FC<NovelCardProps> = ({ novel, onClick }) => {
         </div>
         <div className="flex items-center gap-3 text-xs text-slate-500">
           <span className="flex items-center gap-1">
-            <Eye size={12} /> {mockService.formatNumber(totalReads)}
+            <Eye size={12} /> {utils.formatNumber(totalReads)}
           </span>
           <span className="flex items-center gap-1">
             <Book size={12} /> {novel.chapters.length} chương

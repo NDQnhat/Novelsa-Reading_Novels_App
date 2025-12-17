@@ -3,7 +3,7 @@ import { Novel, NovelStatus, User } from '../types';
 import { Filter, Search, LogIn, Plus, Check, ChevronDown } from 'lucide-react';
 import { message } from 'antd';
 import { NovelCard } from '../components';
-import { mockService } from '../services/mockService';
+import { utils } from '../services/services';
 
 interface HomePageProps {
   novels: Novel[];
@@ -58,7 +58,7 @@ export const HomePage: React.FC<HomePageProps> = ({
 
     if (sortBy === 'popular') {
       result = [...result].sort(
-        (a, b) => mockService.calculateTotalReads(b) - mockService.calculateTotalReads(a)
+        (a, b) => utils.calculateTotalReads(b) - utils.calculateTotalReads(a)
       );
     } else if (sortBy === 'updated') {
       result = [...result].sort(
@@ -91,7 +91,7 @@ export const HomePage: React.FC<HomePageProps> = ({
       <header className="flex justify-between items-center mb-6 pt-2">
         <div>
           <h1 className="text-2xl font-bold text-white">VietNovel</h1>
-          <p className="text-xs text-slate-400">Khám phá thế giới qua từng trang sách</p>
+          <p className="text-xs text-slate-300">Khám phá thế giới qua từng trang sách</p>
         </div>
         <div className="flex gap-2">
           <button
@@ -156,14 +156,14 @@ export const HomePage: React.FC<HomePageProps> = ({
       {showFilter && (
         <div className="mb-6 bg-slate-900 border border-slate-800 rounded-xl p-4 animate-in slide-in-from-top duration-200">
           <div className="mb-4">
-            <h3 className="text-xs font-bold text-slate-400 mb-2 uppercase">Sắp xếp theo</h3>
+            <h3 className="text-xs font-bold text-slate-300 mb-2 uppercase">Sắp xếp theo</h3>
             <div className="flex gap-2">
               <button
                 onClick={() => setSortBy('relevance')}
                 className={`px-3 py-1.5 rounded-full text-xs font-medium border ${
                   sortBy === 'relevance'
                     ? 'bg-amber-400 text-slate-900 border-amber-400'
-                    : 'text-slate-400 border-slate-700 hover:border-slate-500'
+                    : 'text-slate-300 border-slate-700 hover:border-slate-500'
                 }`}
               >
                 Liên quan
@@ -173,7 +173,7 @@ export const HomePage: React.FC<HomePageProps> = ({
                 className={`px-3 py-1.5 rounded-full text-xs font-medium border ${
                   sortBy === 'popular'
                     ? 'bg-amber-400 text-slate-900 border-amber-400'
-                    : 'text-slate-400 border-slate-700 hover:border-slate-500'
+                    : 'text-slate-300 border-slate-700 hover:border-slate-500'
                 }`}
               >
                 Phổ biến
@@ -193,7 +193,7 @@ export const HomePage: React.FC<HomePageProps> = ({
 
           <div>
             <div className="flex justify-between items-center mb-2">
-              <h3 className="text-xs font-bold text-slate-400 uppercase">Thể loại</h3>
+              <h3 className="text-xs font-bold text-slate-300 uppercase">Thể loại</h3>
               {selectedGenres.length > 0 && (
                 <button
                   onClick={() => setSelectedGenres([])}
@@ -211,7 +211,7 @@ export const HomePage: React.FC<HomePageProps> = ({
                   className={`px-2.5 py-1 rounded-full text-[11px] border transition-colors ${
                     selectedGenres.includes(tag)
                       ? 'bg-amber-400 text-slate-900 border-amber-400 font-bold'
-                      : 'bg-slate-800 text-slate-400 border-slate-700 hover:border-slate-600'
+                      : 'bg-slate-800 text-slate-300 border-slate-700 hover:border-slate-600'
                   }`}
                 >
                   {tag}
@@ -226,7 +226,7 @@ export const HomePage: React.FC<HomePageProps> = ({
       {searchQuery || selectedGenres.length > 0 || sortBy !== 'relevance' ? (
         <div>
           <div className="flex justify-between items-center mb-4">
-            <h2 className="text-sm font-bold text-slate-400">Kết quả ({filteredNovels.length})</h2>
+            <h2 className="text-sm font-bold text-slate-300">Kết quả ({filteredNovels.length})</h2>
             {(selectedGenres.length > 0 || sortBy !== 'relevance') && (
               <span className="text-[10px] text-amber-400 italic">Đang lọc/sắp xếp</span>
             )}

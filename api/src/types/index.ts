@@ -6,7 +6,7 @@ export interface IUser {
   password: string;
   name: string;
   avatarUrl?: string;
-  role: 'USER' | 'ADMIN';
+  role: 'USER' | 'ADMIN' | 'BANNED';
   library: string[];
   downloadedChapters: string[];
   createdAt?: number;

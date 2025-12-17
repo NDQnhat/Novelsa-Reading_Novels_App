@@ -1,6 +1,8 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
+import { App as AntdApp, ConfigProvider } from 'antd';
+import vi_VN from 'antd/locale/vi_VN';
 
 const rootElement = document.getElementById('root');
 if (!rootElement) {
@@ -10,6 +12,17 @@ if (!rootElement) {
 const root = ReactDOM.createRoot(rootElement);
 root.render(
   <React.StrictMode>
-    <App />
+    <ConfigProvider
+      locale={vi_VN}
+      theme={{
+        token: {
+          zIndexPopupBase: 3000,
+        },
+      }}
+    >
+      <AntdApp>
+        <App />
+      </AntdApp>
+    </ConfigProvider>
   </React.StrictMode>
 );

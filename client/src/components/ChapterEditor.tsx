@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Save, FileText } from 'lucide-react';
+import { X, Save } from 'lucide-react';
 
 interface ChapterEditorProps {
   title: string;
@@ -34,7 +34,7 @@ export const ChapterEditor: React.FC<ChapterEditorProps> = ({
 
       <div className="p-4 space-y-4 flex-1 flex flex-col overflow-hidden">
         <div>
-          <label className="block text-xs text-slate-500 mb-1">Tiêu đề chương</label>
+          <label className="block text-xs text-slate-300 mb-1">Tiêu đề chương</label>
           <input
             className="w-full bg-slate-800 border border-slate-700 rounded p-2 text-white font-medium focus:border-amber-400 outline-none"
             value={title}
@@ -43,7 +43,7 @@ export const ChapterEditor: React.FC<ChapterEditorProps> = ({
           />
         </div>
         <div className="flex-1 flex flex-col">
-          <label className="block text-xs text-slate-500 mb-1">Nội dung</label>
+          <label className="block text-xs text-slate-300 mb-1">Nội dung</label>
           <textarea
             className="flex-1 w-full bg-slate-800 border border-slate-700 rounded p-3 text-white leading-relaxed focus:border-amber-400 outline-none resize-none"
             value={content}

@@ -48,21 +48,28 @@ export function useAuth() {
     if (!currentUser) throw new Error('Not logged in');
 
     const isSaved = currentUser.library.includes(novelId);
-    const updatedLibrary = isSaved
-      ? currentUser.library.filter((id) => id !== novelId)
-      : [...currentUser.library, novelId];
+    const key = 'upd_lib';
+    message.loading({ content: 'Đang cập nhật...', key });
+    
+    try {
+      const updatedUser = isSaved
+        ? await api.removeFromLibrary(currentUser.id, novelId)
+        : await api.addToLibrary(currentUser.id, novelId);
 
-    const updatedUser = await api.updateUser(currentUser.id, { library: updatedLibrary });
-    setCurrentUser(updatedUser);
-    localStorage.setItem('currentUser', JSON.stringify(updatedUser));
+      setCurrentUser(updatedUser);
+      localStorage.setItem('currentUser', JSON.stringify(updatedUser));
 
-    if (isSaved) {
-      message.success('Đã xóa khỏi tủ sách.');
-    } else {
-      message.success('Đã thêm vào tủ sách!');
+      if (isSaved) {
+        message.success({ content: 'Đã xóa khỏi tủ sách.', key });
+      } else {
+        message.success({ content: 'Đã thêm vào tủ sách!', key });
+      }
+
+      return updatedUser;
+    } catch (e) {
+      message.error({ content: 'Có lỗi xảy ra khi cập nhật tủ sách', key });
+      throw e;
     }
-
-    return updatedUser;
   };
 
   return {

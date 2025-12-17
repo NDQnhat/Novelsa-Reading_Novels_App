@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { User } from '../types';
-import { message } from 'antd';
+import { App as AntdApp } from 'antd';
 import { UserIcon, Mail, Lock, ShieldCheck } from 'lucide-react';
 import { api } from '../services/api';
-import { mockService } from '../services/mockService';
+import { utils } from '../services/services';
 
 interface AuthModalProps {
   onClose: () => void;
@@ -11,22 +11,23 @@ interface AuthModalProps {
 }
 
 export const AuthModal: React.FC<AuthModalProps> = ({ onClose, onLogin }) => {
+  const { message } = AntdApp.useApp();
   const [mode, setMode] = useState<'login' | 'register'>('login');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
-  const [selectedAvatar, setSelectedAvatar] = useState(mockService.getRandomAvatars()[0]);
+  const [selectedAvatar, setSelectedAvatar] = useState(utils.getAvatarUrls()[0]);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
   const fillDemoAccount = (role: 'admin' | 'user') => {
     if (role === 'admin') {
-      setEmail('admin@vietnovel.com');
-      setPassword('password');
+      setEmail('admin@example.com');
+      setPassword('admin123');
       message.info('Đã nhập tài khoản Admin Demo');
     } else {
-      setEmail('user@example.com');
-      setPassword('password');
+      setEmail('user1@example.com');
+      setPassword('user123');
       message.info('Đã nhập tài khoản User Demo');
     }
   };
@@ -49,7 +50,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ onClose, onLogin }) => {
       let user;
       if (mode === 'login') {
         user = await api.login(email, password);
-        message.success({ content: `Chào mừng trở lại, ${user.name}!`, key, duration: 2 });
+        message.success({ content: `Chào mừng trở lại, ${user.name}!`, key, duration: 3 });
       } else {
         if (!name.trim()) {
           const msg = 'Vui lòng nhập họ tên.';
@@ -64,10 +65,10 @@ export const AuthModal: React.FC<AuthModalProps> = ({ onClose, onLogin }) => {
           name,
           avatarUrl: selectedAvatar,
         });
-        message.success({ content: 'Đăng ký tài khoản thành công!', key, duration: 2 });
+        message.success({ content: 'Đăng ký tài khoản thành công!', key, duration: 3 });
       }
       onLogin(user);
-      onClose();
+      setTimeout(() => onClose(), 500);
     } catch (err: any) {
       const errMsg = err.message || 'Có lỗi xảy ra';
       setError(errMsg);
@@ -83,7 +84,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ onClose, onLogin }) => {
         <div className="flex border-b border-slate-800">
           <button
             className={`flex-1 py-4 font-bold text-sm ${
-              mode === 'login' ? 'bg-slate-800 text-amber-400' : 'text-slate-400 hover:text-slate-200'
+              mode === 'login' ? 'bg-slate-800 text-amber-400' : 'text-slate-300 hover:text-slate-100'
             }`}
             onClick={() => {
               setMode('login');
@@ -94,7 +95,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ onClose, onLogin }) => {
           </button>
           <button
             className={`flex-1 py-4 font-bold text-sm ${
-              mode === 'register' ? 'bg-slate-800 text-amber-400' : 'text-slate-400 hover:text-slate-200'
+              mode === 'register' ? 'bg-slate-800 text-amber-400' : 'text-slate-300 hover:text-slate-100'
             }`}
             onClick={() => {
               setMode('register');
@@ -108,9 +109,9 @@ export const AuthModal: React.FC<AuthModalProps> = ({ onClose, onLogin }) => {
         <div className="p-6">
           {mode === 'register' && (
             <div className="mb-6">
-              <label className="block text-xs text-slate-400 mb-2">Chọn Avatar</label>
+              <label className="block text-xs text-slate-300 mb-2">Chọn Avatar</label>
               <div className="flex gap-2 justify-center">
-                {mockService.getRandomAvatars().slice(0, 4).map((url, idx) => (
+                {utils.getAvatarUrls().slice(0, 4).map((url, idx) => (
                   <button
                     key={idx}
                     onClick={() => setSelectedAvatar(url)}
@@ -128,7 +129,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ onClose, onLogin }) => {
           <div className="space-y-4">
             {mode === 'register' && (
               <div>
-                <label className="block text-xs text-slate-400 mb-1">Họ và tên</label>
+                <label className="block text-xs text-slate-300 mb-1">Họ và tên</label>
                 <div className="relative">
                   <UserIcon size={16} className="absolute left-3 top-3 text-slate-500" />
                   <input
@@ -142,7 +143,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ onClose, onLogin }) => {
             )}
 
             <div>
-              <label className="block text-xs text-slate-400 mb-1">Email</label>
+              <label className="block text-xs text-slate-300 mb-1">Email</label>
               <div className="relative">
                 <Mail size={16} className="absolute left-3 top-3 text-slate-500" />
                 <input
@@ -156,7 +157,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ onClose, onLogin }) => {
             </div>
 
             <div>
-              <label className="block text-xs text-slate-400 mb-1">Mật khẩu</label>
+              <label className="block text-xs text-slate-300 mb-1">Mật khẩu</label>
               <div className="relative">
                 <Lock size={16} className="absolute left-3 top-3 text-slate-500" />
                 <input
@@ -199,7 +200,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ onClose, onLogin }) => {
           </div>
 
           <div className="mt-6 text-center">
-            <button onClick={onClose} className="text-slate-500 text-xs hover:text-slate-300">
+            <button onClick={onClose} className="text-slate-400 text-xs hover:text-slate-300">
               Để sau, xem với tư cách Khách
             </button>
           </div>

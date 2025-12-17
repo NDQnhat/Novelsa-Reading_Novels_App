@@ -1,9 +1,7 @@
-import mongoose, { Schema, Document } from 'mongoose';
+import mongoose, { Schema } from 'mongoose';
 import { IUser } from '../types/index';
 
-interface UserDocument extends IUser, Document {}
-
-const UserSchema = new Schema<UserDocument>(
+const UserSchema = new Schema<IUser>(
   {
     id: { type: String, unique: true, required: true },
     email: { type: String, required: true, unique: true },
@@ -12,7 +10,7 @@ const UserSchema = new Schema<UserDocument>(
     avatarUrl: { type: String, default: null },
     role: {
       type: String,
-      enum: ['USER', 'ADMIN'],
+      enum: ['USER', 'ADMIN', 'BANNED'],
       default: 'USER',
     },
     library: { type: [String], default: [] },
@@ -21,6 +19,6 @@ const UserSchema = new Schema<UserDocument>(
   { timestamps: true }
 );
 
-const User = mongoose.model<UserDocument>('User', UserSchema);
+const User = mongoose.model<IUser>('User', UserSchema);
 
 export default User;

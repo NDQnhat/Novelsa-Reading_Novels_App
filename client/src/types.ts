@@ -8,6 +8,7 @@ export enum NovelStatus {
 export enum UserRole {
   USER = 'USER',
   ADMIN = 'ADMIN',
+  BANNED = 'BANNED',
 }
 
 export interface Comment {

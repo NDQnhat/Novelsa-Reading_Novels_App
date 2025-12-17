@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Novel, User, NovelStatus, Chapter, Comment } from '../types';
-import { Plus, Settings, FileText, X } from 'lucide-react';
-import { message } from 'antd';
+import { Plus, Settings, FileText, X, Trash2 } from 'lucide-react';
+import { App as AntdApp } from 'antd';
 
 interface WritePageProps {
   myNovels: Novel[];
@@ -22,6 +22,21 @@ export const WritePage: React.FC<WritePageProps> = ({
   onAddChapter,
   onDeleteNovel,
 }) => {
+  const { message, modal } = AntdApp.useApp();
+  const handleDeleteClick = (novelId: string) => {
+    modal.confirm({
+      title: 'Xóa truyện',
+      content: 'Bạn chắc chắn muốn xóa truyện này? Hành động này không thể hoàn tác.',
+      okText: 'Xóa',
+      cancelText: 'Hủy',
+      okButtonProps: { danger: true },
+      onOk() {
+        onDeleteNovel(novelId);
+        message.success('Đã xóa truyện');
+      },
+    });
+  };
+
   return (
     <div className="p-4 pb-20">
       <div className="flex justify-between items-center mb-6 pt-2">
@@ -67,12 +82,12 @@ export const WritePage: React.FC<WritePageProps> = ({
                 src={novel.coverUrl}
                 className="w-16 h-24 object-cover rounded bg-slate-900"
               />
-              <div className="flex-1">
-                <h3 className="font-bold text-white mb-1">{novel.title}</h3>
-                <p className="text-xs text-slate-400 mb-2 line-clamp-2">
+              <div className="flex-1 min-w-0">
+                <h3 className="font-bold text-white mb-1 truncate">{novel.title}</h3>
+                <p className="text-xs text-slate-300 mb-2 line-clamp-2">
                   {novel.description || 'Chưa có mô tả'}
                 </p>
-                <div className="flex gap-2">
+                <div className="flex gap-2 items-center">
                   <button
                     onClick={() => onEditNovel(novel.id)}
                     className="text-xs bg-slate-700 hover:bg-slate-600 px-3 py-1.5 rounded flex items-center gap-1"
@@ -82,13 +97,20 @@ export const WritePage: React.FC<WritePageProps> = ({
                   {novel.status === NovelStatus.REJECTED && (
                     <span className="text-xs text-red-400 flex items-center">Bị từ chối</span>
                   )}
+                  <button
+                    onClick={() => handleDeleteClick(novel.id)}
+                    className="text-slate-300 hover:text-red-400 transition ml-auto"
+                    title="Xóa truyện"
+                  >
+                    <Trash2 size={18} />
+                  </button>
                 </div>
               </div>
             </div>
           </div>
         ))}
         {myNovels.length === 0 && (
-          <div className="text-center py-10 text-slate-500">
+          <div className="text-center py-10 text-slate-400">
             Bạn chưa sáng tác truyện nào. <br /> Nhấn dấu + để bắt đầu.
           </div>
         )}

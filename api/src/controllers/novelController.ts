@@ -30,10 +30,18 @@ export const createNovel = async (
   try {
     const { authorId, authorName, title, description, coverUrl, tags } = req.body;
 
-    if (!authorId || !authorName || !title || !description || !coverUrl) {
+    // Validate all required fields
+    const missingFields = [];
+    if (!authorId) missingFields.push('authorId');
+    if (!authorName) missingFields.push('authorName');
+    if (!title) missingFields.push('title');
+    if (!description && description !== '') missingFields.push('description');
+    if (!coverUrl) missingFields.push('coverUrl');
+
+    if (missingFields.length > 0) {
       res.status(400).json({
         success: false,
-        error: 'authorId, authorName, title, description, and coverUrl are required',
+        error: `Missing required fields: ${missingFields.join(', ')}`,
       });
       return;
     }

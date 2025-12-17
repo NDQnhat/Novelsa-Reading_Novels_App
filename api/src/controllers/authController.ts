@@ -121,3 +121,73 @@ export const updateUser = async (
     });
   }
 };
+
+// ============ LIBRARY OPERATIONS ============
+
+export const addToLibrary = async (
+  req: Request<{ id: string; novelId: string }>,
+  res: Response<ApiResponse<IUser>>
+): Promise<void> => {
+  try {
+    const { id: userId, novelId } = req.params;
+
+    const user = await User.findOne({ id: userId });
+    if (!user) {
+      res.status(404).json({
+        success: false,
+        error: 'User not found',
+      });
+      return;
+    }
+
+    if (!user.library.includes(novelId)) {
+      user.library.push(novelId);
+      await user.save();
+    }
+
+    res.json({
+      success: true,
+      data: user.toObject() as IUser,
+      message: 'Novel added to library',
+    });
+  } catch (err: unknown) {
+    const errorMessage = err instanceof Error ? err.message : 'Unknown error';
+    res.status(500).json({
+      success: false,
+      error: errorMessage,
+    });
+  }
+};
+
+export const removeFromLibrary = async (
+  req: Request<{ id: string; novelId: string }>,
+  res: Response<ApiResponse<IUser>>
+): Promise<void> => {
+  try {
+    const { id: userId, novelId } = req.params;
+
+    const user = await User.findOne({ id: userId });
+    if (!user) {
+      res.status(404).json({
+        success: false,
+        error: 'User not found',
+      });
+      return;
+    }
+
+    user.library = user.library.filter((id) => id !== novelId);
+    await user.save();
+
+    res.json({
+      success: true,
+      data: user.toObject() as IUser,
+      message: 'Novel removed from library',
+    });
+  } catch (err: unknown) {
+    const errorMessage = err instanceof Error ? err.message : 'Unknown error';
+    res.status(500).json({
+      success: false,
+      error: errorMessage,
+    });
+  }
+};

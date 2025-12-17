@@ -1,26 +1,63 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Layout } from './components/Layout';
 import { NovelStatus, Chapter } from './types';
 import { AuthModal, EditNovelOverlay, NovelDetailOverlay, ReaderView, } from './components';
 import { HomePage, WritePage, LibraryPage, AdminPage, ProfilePage, } from './pages';
 import { useNovels, useAuth, useNovelFilters } from './hooks';
-import { message } from 'antd';
-import { TABS } from './utils/constants';
+import { App as AntdApp } from 'antd';
+import { TABS } from './utils/cores/constants';
+import { useOfflineState, OfflineIndicator } from './hooks/useOfflineState';
 
 export default function App() {
+  const { message, modal } = AntdApp.useApp();
+  const offlineState = useOfflineState();
+  
   // === STATE MANAGEMENT ===
-  const { novels, loading, updateNovel, createNovel, deleteNovel } = useNovels();
+  const { novels, loading, updateNovel, createNovel, deleteNovel, refetchNovels } = useNovels();
   const { currentUser, login, logout, updateProfile, updateLibrary } = useAuth();
   const { searchQuery, setSearchQuery, selectedGenres, setSelectedGenres, sortBy, setSortBy, getFilteredNovels } =
     useNovelFilters(novels);
 
   // === VIEW STATE ===
-  const [activeTab, setActiveTab] = useState(TABS.HOME);
+  const [activeTab, setActiveTab] = useState(() => {
+    // Restore active tab from localStorage on mount
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('activeTab');
+      return saved || TABS.HOME;
+    }
+    return TABS.HOME;
+  });
   const [viewNovelId, setViewNovelId] = useState<string | null>(null);
   const [readChapterId, setReadChapterId] = useState<string | null>(null);
   const [editingNovelId, setEditingNovelId] = useState<string | null>(null);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [isEditingProfile, setIsEditingProfile] = useState(false);
+
+  // === REGISTER SERVICE WORKER ===
+  useEffect(() => {
+    if (offlineState.isSupported && !offlineState.isReady) {
+      offlineState.registerSW();
+    }
+  }, [offlineState]);
+
+  // === PERSIST ACTIVE TAB TO LOCALSTORAGE ===
+  useEffect(() => {
+    localStorage.setItem('activeTab', activeTab);
+  }, [activeTab]);
+
+  // === AUTO-REFETCH NOVELS ON WRITE TAB ===
+  // Refetch every 5 seconds when on WRITE or LIBRARY tab to check for admin approvals
+  // Disable if offline to avoid excessive errors
+  useEffect(() => {
+    if (!offlineState.isOnline) return;
+    if (activeTab !== TABS.WRITE && activeTab !== TABS.LIBRARY) return;
+
+    const interval = setInterval(() => {
+      refetchNovels();
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, [activeTab, refetchNovels, offlineState.isOnline]);
 
   // === TAB CHANGE ===
   const handleTabChange = (tab: string) => {
@@ -31,10 +68,19 @@ export default function App() {
     }
     setActiveTab(tab);
     if (tab !== TABS.PROFILE) setIsEditingProfile(false);
+    
+    // Refetch novels when switching to WRITE or LIBRARY to get latest admin decisions
+    if (tab === TABS.WRITE || tab === TABS.LIBRARY) {
+      refetchNovels();
+    }
   };
 
   // === AUTH HANDLERS ===
   const handleLogin = (user: any) => {
+    if (user.role === 'BANNED') {
+      message.error('Tài khoản của bạn đã bị khóa. Vui lòng liên hệ quản trị viên.');
+      return;
+    }
     login(user);
     setShowAuthModal(false);
   };
@@ -114,7 +160,10 @@ export default function App() {
   };
 
   const handleCreateNovel = async (novelData: any) => {
-    if (!currentUser) return;
+    if (!currentUser) {
+      message.error('Bạn cần đăng nhập để tạo truyện');
+      return;
+    }
 
     const key = 'create_novel';
     message.loading({ content: 'Đang tạo...', key });
@@ -122,20 +171,30 @@ export default function App() {
     try {
       const newNovel = {
         id: `novel-${Date.now()}`,
-        title: novelData.title || 'Truyện mới',
-        description: novelData.description || '',
-        authorId: currentUser.id,
-        authorName: currentUser.name,
-        coverUrl: novelData.coverUrl || 'https://images.unsplash.com/photo-1507842217343-583f20270319?w=300&h=450&fit=crop',
+        title: novelData.title?.trim() || 'Truyện mới',
+        description: novelData.description?.trim() || 'Mô tả truyện',
+        authorId: currentUser.id || 'unknown',
+        authorName: currentUser.name || 'Tác giả',
+        coverUrl: novelData.coverUrl?.trim() || 'https://images.unsplash.com/photo-1507842217343-583f20270319?w=300&h=450&fit=crop',
         tags: novelData.tags || ['Truyện'],
         chapters: [],
         status: NovelStatus.DRAFT,
         updatedAt: Date.now(),
       };
 
+      console.log('[CreateNovel] Sending data:', {
+        authorId: newNovel.authorId,
+        authorName: newNovel.authorName,
+        title: newNovel.title,
+        description: newNovel.description,
+        coverUrl: newNovel.coverUrl,
+        tags: newNovel.tags,
+      });
+
       await createNovel(newNovel);
       message.success({ content: 'Đã tạo bản thảo mới!', key });
-    } catch {
+    } catch (error) {
+      console.error('[CreateNovel] Error:', error);
       message.error({ content: 'Có lỗi xảy ra', key });
     }
   };
@@ -166,19 +225,40 @@ export default function App() {
     if (!novel) return;
 
     const updatedChapters = [...novel.chapters];
-    updatedChapters[chapterIndex] = { ...updatedChapters[chapterIndex], content };
+    updatedChapters[chapterIndex] = {
+      ...updatedChapters[chapterIndex],
+      content,
+      novelId: novelId, // Ensure novelId is set
+    };
 
     try {
       await updateNovel(novelId, { chapters: updatedChapters });
       message.success('Đã lưu nội dung chương!');
-    } catch {
-      // Error already handled
+    } catch (error) {
+      console.error('Save chapter error:', error);
+      message.error('Không thể lưu nội dung chương');
     }
   };
 
   const handleSubmitForReview = async (novelId: string) => {
     const novel = novels.find((n) => n.id === novelId);
-    if (!novel || novel.chapters.length === 0) {
+    if (!novel) {
+      message.error('Không tìm thấy truyện');
+      return;
+    }
+
+    // Validate required fields
+    if (!novel.title || novel.title.trim() === '') {
+      message.warning('Vui lòng nhập tên truyện!');
+      return;
+    }
+
+    if (!novel.description || novel.description.trim() === '') {
+      message.warning('Vui lòng nhập mô tả truyện!');
+      return;
+    }
+
+    if (novel.chapters.length === 0) {
       message.warning('Cần ít nhất 1 chương để đăng truyện!');
       return;
     }
@@ -187,8 +267,14 @@ export default function App() {
     message.loading({ content: 'Đang gửi yêu cầu...', key });
     try {
       await updateNovel(novelId, { status: NovelStatus.PENDING });
-      message.success({ content: 'Đã gửi yêu cầu duyệt! Vui lòng chờ phản hồi.', key });
-    } catch {
+      message.success({ content: 'Đã gửi yêu cầu duyệt! Vui lòng chờ phản hồi.', key, duration: 2 });
+      // Navigate to WRITE tab after success
+      setTimeout(() => {
+        setActiveTab(TABS.WRITE);
+        setEditingNovelId(null);
+      }, 500);
+    } catch (error) {
+      console.error('Submit error:', error);
       message.error({ content: 'Có lỗi xảy ra', key });
     }
   };
@@ -199,6 +285,8 @@ export default function App() {
     try {
       await updateNovel(novelId, { status: NovelStatus.APPROVED });
       message.success({ content: 'Đã duyệt truyện!', key });
+      // Refetch novels to update status across all components
+      refetchNovels();
     } catch {
       message.error({ content: 'Lỗi khi duyệt truyện', key });
     }
@@ -210,6 +298,8 @@ export default function App() {
     try {
       await updateNovel(novelId, { status: NovelStatus.REJECTED });
       message.info({ content: 'Đã từ chối truyện.', key });
+      // Refetch novels to update status across all components
+      refetchNovels();
     } catch {
       message.error({ content: 'Lỗi khi từ chối truyện', key });
     }
@@ -267,8 +357,8 @@ export default function App() {
         novel={novel}
         chapter={chapter}
         onBack={() => {
+          // Only close the reader, keep the novel detail view
           setReadChapterId(null);
-          setViewNovelId(null);
         }}
         onPrev={() => {
           if (chapterIndex > 0) {
@@ -331,6 +421,11 @@ export default function App() {
       currentUser={currentUser}
       onShowAuth={() => setShowAuthModal(true)}
     >
+      {/* Offline indicator */}
+      <div className="sticky top-0 z-40">
+        <OfflineIndicator state={offlineState} className="m-2" />
+      </div>
+
       {showAuthModal && (
         <AuthModal
           onClose={() => setShowAuthModal(false)}
@@ -338,62 +433,79 @@ export default function App() {
         />
       )}
 
-      {activeTab === TABS.HOME && (
-        <HomePage
-          novels={visibleNovels}
-          searchQuery={searchQuery}
-          onSearchChange={setSearchQuery}
-          selectedGenres={selectedGenres}
-          onGenreToggle={(genre) => {
-            setSelectedGenres((prev) =>
-              prev.includes(genre)
-                ? prev.filter((g) => g !== genre)
-                : [...prev, genre]
-            );
-          }}
-          sortBy={sortBy}
-          onSortChange={setSortBy}
-          onNovelClick={(id) => setViewNovelId(id)}
-        />
+      {/* Banned user notice */}
+      {currentUser?.role === 'BANNED' && (
+        <div className="p-4 pb-20">
+          <div className="bg-red-600/20 border border-red-600 rounded-lg p-6 text-center">
+            <h2 className="text-xl font-bold text-red-400 mb-3">Tài khoản bị khóa</h2>
+            <p className="text-red-300 mb-4">
+              Tài khoản của bạn đã bị khóa. Bạn không thể sử dụng các tính năng trên nền tảng.
+            </p>
+            <p className="text-sm text-red-300">
+              Vui lòng liên hệ quản trị viên nếu bạn tin rằng đây là một lỗi.
+            </p>
+            <button
+              onClick={handleLogout}
+              className="mt-4 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded font-semibold"
+            >
+              Đăng xuất
+            </button>
+          </div>
+        </div>
       )}
 
-      {activeTab === TABS.LIBRARY && (
-        <LibraryPage
-          libraryNovels={libraryNovels}
-          onNovelClick={(id) => setViewNovelId(id)}
-        />
-      )}
+      {currentUser?.role !== 'BANNED' && (
+        <>
+          {activeTab === TABS.HOME && (
+            <HomePage
+              novels={visibleNovels}
+              searchQuery={searchQuery}
+              onSearchChange={setSearchQuery}
+              selectedGenres={selectedGenres}
+              onGenreToggle={(genre) => {
+                setSelectedGenres((prev) =>
+                  prev.includes(genre)
+                    ? prev.filter((g) => g !== genre)
+                    : [...prev, genre]
+                );
+              }}
+              sortBy={sortBy}
+              onSortChange={setSortBy}
+              onNovelClick={(id) => setViewNovelId(id)}
+            />
+          )}
 
-      {activeTab === TABS.WRITE && currentUser && (
-        <WritePage
-          myNovels={myNovels}
-          currentUser={currentUser}
-          onEditNovel={setEditingNovelId}
-          onCreateNovel={handleCreateNovel}
-          onDeleteNovel={handleDeleteNovel}
-        />
-      )}
+          {activeTab === TABS.LIBRARY && (
+            <LibraryPage
+              libraryNovels={libraryNovels}
+              onNovelClick={(id) => setViewNovelId(id)}
+            />
+          )}
 
-      {activeTab === TABS.ADMIN && currentUser?.role === 'ADMIN' && (
-        <AdminPage
-          pendingNovels={pendingNovels}
-          allNovels={novels}
-          currentUser={currentUser}
-          onApprove={handleApproveNovel}
-          onReject={handleRejectNovel}
-          onDelete={handleDeleteNovel}
-          onViewNovel={(id) => setViewNovelId(id)}
-        />
-      )}
+          {activeTab === TABS.WRITE && currentUser && currentUser.role !== 'ADMIN' && (
+            <WritePage
+              myNovels={myNovels}
+              currentUser={currentUser}
+              onEditNovel={setEditingNovelId}
+              onCreateNovel={handleCreateNovel}
+              onDeleteNovel={handleDeleteNovel}
+            />
+          )}
 
-      {activeTab === TABS.PROFILE && currentUser && (
-        <ProfilePage
-          currentUser={currentUser}
-          myNovels={myNovels}
-          onLogout={handleLogout}
-          onUpdateProfile={updateProfile}
-          onShowInstall={() => {}}
-        />
+          {activeTab === TABS.ADMIN && currentUser?.role === 'ADMIN' && (
+            <AdminPage currentUser={currentUser} />
+          )}
+
+          {activeTab === TABS.PROFILE && currentUser && (
+            <ProfilePage
+              currentUser={currentUser}
+              myNovels={myNovels}
+              onLogout={handleLogout}
+              onUpdateProfile={updateProfile}
+              onShowInstall={() => {}}
+            />
+          )}
+        </>
       )}
     </Layout>
   );

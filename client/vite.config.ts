@@ -10,4 +10,15 @@ export default defineConfig({
       },
     }),
   ],
+  server: {
+    middlewareMode: false,
+  },
+  build: {
+    // Ensure service worker is copied to dist
+    rollupOptions: {
+      input: {
+        main: './index.html',
+      },
+    },
+  },
 })
