@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Layout } from './components/Layout';
 import { NovelStatus, Chapter } from './types';
-import { AuthModal, EditNovelOverlay, NovelDetailOverlay, ReaderView, } from './components';
-import { HomePage, WritePage, LibraryPage, AdminPage, ProfilePage, } from './pages';
+import { AuthModal, EditNovelOverlay, NovelDetailOverlay, ReaderView, OfflineLibrary, OfflineReader } from './components';
+import { HomePage, WritePage, LibraryPage, AdminPage, ProfilePage, OfflinePage } from './pages';
 import { useNovels, useAuth, useNovelFilters } from './hooks';
 import { App as AntdApp } from 'antd';
 import { TABS } from './utils/cores/constants';
@@ -32,6 +32,7 @@ export default function App() {
   const [editingNovelId, setEditingNovelId] = useState<string | null>(null);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [isEditingProfile, setIsEditingProfile] = useState(false);
+  const [offlineReaderNovelId, setOfflineReaderNovelId] = useState<string | null>(null);
 
   // === REGISTER SERVICE WORKER ===
   useEffect(() => {
@@ -480,6 +481,17 @@ export default function App() {
               libraryNovels={libraryNovels}
               onNovelClick={(id) => setViewNovelId(id)}
             />
+          )}
+
+          {activeTab === TABS.OFFLINE && (
+            offlineReaderNovelId ? (
+              <OfflineReader 
+                novelId={offlineReaderNovelId}
+                onClose={() => setOfflineReaderNovelId(null)}
+              />
+            ) : (
+              <OfflineLibrary onReadNovel={setOfflineReaderNovelId} />
+            )
           )}
 
           {activeTab === TABS.WRITE && currentUser && currentUser.role !== 'ADMIN' && (

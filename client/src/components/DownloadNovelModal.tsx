@@ -64,12 +64,12 @@ export default function DownloadNovelModal({
         id: novelData.id,
         title: novelData.title,
         description: novelData.description,
-        author: novelData.author?.name || 'Unknown',
+        author: novelData.authorName || 'Unknown',
         coverImage: novelData.coverUrl,
         status: novelData.status,
-        genre: novelData.genre || 'Khác',
-        viewCount: novelData.viewCount || 0,
-        rating: novelData.rating || 0,
+        genre: novelData.tags?.[0] || 'Khác',
+        viewCount: 0,
+        rating: 0,
         totalChapters: novelData.chapters?.length || 0,
         readProgress: 0,
         savedAt: Date.now(),
@@ -83,20 +83,14 @@ export default function DownloadNovelModal({
       if (novelData.chapters && novelData.chapters.length > 0) {
         const chaptersToSave: StoredChapter[] = [];
 
-        for (const chapter of novelData.chapters) {
+        novelData.chapters.forEach((chapter, index) => {
           try {
-            // Fetch chapter content
-            const chapterData = await chapterAPI.getChapter(
-              novelId,
-              chapter.id
-            );
-
             chaptersToSave.push({
               id: chapter.id,
               novelId: novelId,
-              chapterNumber: chapter.chapterNumber,
+              chapterNumber: index + 1,
               title: chapter.title,
-              content: chapterData?.content || '',
+              content: chapter.content || '',
               savedAt: Date.now(),
               fromCache: true,
             });
@@ -104,11 +98,11 @@ export default function DownloadNovelModal({
             setDownloadedChapters((prev) => prev + 1);
           } catch (err) {
             console.warn(
-              `[Download] Failed to fetch chapter ${chapter.chapterNumber}:`,
+              `[Download] Failed to process chapter ${index + 1}:`,
               err
             );
           }
-        }
+        });
 
         // Save all chapters in batch
         if (chaptersToSave.length > 0) {

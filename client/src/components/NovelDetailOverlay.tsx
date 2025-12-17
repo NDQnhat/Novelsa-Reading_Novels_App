@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { Novel } from '../types';
-import { ChevronLeft, Plus, Check } from 'lucide-react';
+import { ChevronLeft, Plus, Check, Download } from 'lucide-react';
 import { message } from 'antd';
 import { AuthModal } from './AuthModal';
+import DownloadNovelModal from './DownloadNovelModal';
 import { User } from '../types';
 
 interface NovelDetailOverlayProps {
@@ -26,6 +27,7 @@ export function NovelDetailOverlay({
 }: NovelDetailOverlayProps) {
   const [visibleChaptersCount, setVisibleChaptersCount] = useState(50);
   const [showAuthModal, setShowAuthModal] = useState(false);
+  const [showDownloadModal, setShowDownloadModal] = useState(false);
 
   const handleToggleSave = async () => {
     if (!currentUser) {
@@ -104,6 +106,14 @@ export function NovelDetailOverlay({
             Đọc ngay
           </button>
           <button
+            onClick={() => setShowDownloadModal(true)}
+            className="px-4 py-3 rounded-full border border-primary text-primary hover:bg-primary/10 transition-colors font-medium flex items-center justify-center gap-2"
+            title="Tải truyện để đọc offline"
+          >
+            <Download size={18} />
+            <span className="hidden sm:inline">Tải</span>
+          </button>
+          <button
             onClick={handleToggleSave}
             className={`px-4 py-3 rounded-full border ${
               isSaved
@@ -155,6 +165,16 @@ export function NovelDetailOverlay({
             )}
           </div>
         </div>
+
+        {/* Download modal */}
+        {showDownloadModal && (
+          <DownloadNovelModal
+            novelId={novel.id}
+            novelTitle={novel.title}
+            totalChapters={novel.chapters.length}
+            onClose={() => setShowDownloadModal(false)}
+          />
+        )}
       </div>
     </div>
   );

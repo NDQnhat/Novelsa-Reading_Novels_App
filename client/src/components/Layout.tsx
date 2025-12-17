@@ -1,5 +1,5 @@
 import React from 'react';
-import { Home, BookOpen, PenTool, User, ShieldAlert } from 'lucide-react';
+import { Home, BookOpen, Download, PenTool, User, ShieldAlert } from 'lucide-react';
 import { User as UserType } from '../types';
 
 interface LayoutProps {
@@ -35,6 +35,14 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange
         >
           <BookOpen size={24} />
           <span className="text-[10px] mt-1">Tủ sách</span>
+        </button>
+
+        <button 
+          onClick={() => onTabChange('offline')}
+          className={`flex flex-col items-center p-2 ${activeTab === 'offline' ? 'text-primary' : 'text-slate-500'}`}
+        >
+          <Download size={24} />
+          <span className="text-[10px] mt-1">Offline</span>
         </button>
 
         {!isAdmin && (

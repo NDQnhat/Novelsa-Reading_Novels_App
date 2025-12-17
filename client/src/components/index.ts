@@ -5,4 +5,6 @@ export { ChapterEditor } from './ChapterEditor';
 export { ReaderView } from './ReaderView';
 export { ReaderOverlay } from './ReaderOverlay';
 export { EditNovelOverlay } from './EditNovelOverlay';
-export { NovelDetailOverlay } from './NovelDetailOverlay';
+export { NovelDetailOverlay } from './NovelDetailOverlay';export { default as OfflineLibrary } from './OfflineLibrary';
+export { default as OfflineReader } from './OfflineReader';
+export { default as DownloadNovelModal } from './DownloadNovelModal';

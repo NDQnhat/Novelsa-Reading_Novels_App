@@ -45,6 +45,7 @@ export const USER_ROLES = {
 export const TABS = {
   HOME: 'home',
   LIBRARY: 'library',
+  OFFLINE: 'offline',
   WRITE: 'write',
   ADMIN: 'admin',
   PROFILE: 'profile',
