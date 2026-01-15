@@ -14,7 +14,7 @@
     "declaration": false,
     "types": ["node"],
     "allowSyntheticDefaultImports": true,
-    "moduleResolution": "bundler"
+    "moduleResolution": "node"
   },
   "include": ["**/*.ts"],
   "exclude": ["node_modules", "dist"]
