@@ -16,6 +16,19 @@ app.get('/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
+// API root endpoint
+app.get('/api', (req, res) => {
+  res.json({ 
+    success: true,
+    message: 'VietNovel API Server',
+    endpoints: {
+      auth: '/api/auth',
+      novels: '/api/novels',
+      admin: '/api/admin'
+    }
+  });
+});
+
 // API Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/novels', novelRoutes);
