@@ -2,7 +2,7 @@
   "name": "api",
   "version": "1.0.0",
   "description": "VietNovel API Server",
-  "main": "src/server.ts",
+  "main": "dist/src/server.js",
   "scripts": {
     "dev": "tsx watch src/server.ts",
     "dev:run": "tsx src/server.ts",
@@ -15,6 +15,9 @@
   "author": "",
   "license": "ISC",
   "type": "commonjs",
+  "engines": {
+    "node": ">=18.0.0"
+  },
   "dependencies": {
     "bcrypt": "^5.1.1",
     "cors": "^2.8.5",
